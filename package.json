@@ -1,0 +1,29 @@
+{
+  "name": "pernonal-ai-chat",
+  "version": "1.0.0",
+  "description": "An AI chatbot application for portfilio project",
+  "keywords": [
+    "chatbot",
+    "chat",
+    "ai"
+  ],
+  "license": "ISC",
+  "author": "Cihan Erenler",
+  "type": "module",
+  "main": "server.js",
+  "scripts": {
+    "dev:server": "nodemon server.js",
+    "dev:client": "vite",
+    "build": "vite build",
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.3",
+    "express": "^5.1.0",
+    "nodemon": "^3.1.11"
+  },
+  "devDependencies": {
+    "vite": "^7.2.2"
+  }
+}
