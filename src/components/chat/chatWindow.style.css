@@ -32,7 +32,7 @@
 .chat-window {
   position: fixed;
   bottom: var(--chat-widget-spacing);
-  right: 28px;
+  right: 0px;
   width: min(420px, calc(100vw - 48px));
   min-height: min(540px, calc(100vh - 160px));
   max-height: min(720px, calc(100vh - 96px));
@@ -45,8 +45,8 @@
   overflow: hidden;
   backdrop-filter: blur(var(--chat-glass-blur));
   transform-origin: bottom right;
-  transition: opacity 0.28s ease, transform 0.28s cubic-bezier(0.22, 1, 0.36, 1),
-    visibility 0.28s ease;
+  transition: opacity 0.2s ease, transform 0.2s cubic-bezier(0.22, 1, 0.36, 1),
+    visibility 0.15s ease;
   z-index: 999999;
 }
 

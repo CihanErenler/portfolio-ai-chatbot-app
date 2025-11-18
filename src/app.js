@@ -1,149 +1,115 @@
 import createPopupButton from "./components/popupButton/popupButton.js";
 import createChatWindow from "./components/chat/chatWindow.js";
+import { EMBED_CONFIG } from "./constants/index.js";
+import postMessageService from "./services/postMessageService.js";
+import { createMessageHandler } from "./services/messageHandler.js";
+import StateManager from "./utils/stateManager.js";
+import { setupEmbedHandlers } from "./handlers/embedHandlers.js";
+import { setupDOMHandlers } from "./handlers/domHandlers.js";
 import "./styles.css";
 
-const EMBED_SOURCE = "personal-ai-chat";
-const STATE_MESSAGE_TYPE = "personal-ai-chat:state";
-const COMMAND_MESSAGE_TYPE = "personal-ai-chat:command";
-const EMBED_TRANSITION_DELAY = 280;
-
-const isEmbedded = window.parent !== window;
-
-const postChatState = (open) => {
-  if (!isEmbedded) return;
-
-  window.parent.postMessage(
-    {
-      source: EMBED_SOURCE,
-      type: STATE_MESSAGE_TYPE,
-      open: Boolean(open),
-    },
-    "*"
-  );
-};
-
+/**
+ * Initializes the chat application
+ */
 const startApp = () => {
   const popupButton = createPopupButton();
-  let chatWindow;
-  let pendingStateSyncTimeout = null;
+  const stateManager = new StateManager();
+  const isEmbedded = postMessageService.getIsEmbedded();
 
-  const clearPendingStateSyncTimeout = () => {
-    if (pendingStateSyncTimeout) {
-      window.clearTimeout(pendingStateSyncTimeout);
-      pendingStateSyncTimeout = null;
-    }
-  };
+  // Create chat window - handlers defined below
+  let handleOpen;
+  let handleClose;
 
-  const handleBeforeOpen = () => {
+  const chatWindow = createChatWindow({
+    onSend: (userMessage, callbacks) => {
+      // Create message handler with callbacks from chat window
+      const messageHandler = createMessageHandler(callbacks);
+      // Process the message asynchronously
+      return messageHandler(userMessage);
+    },
+    onClose: () => handleClose?.(),
+    fullSize: isEmbedded,
+  });
+
+  /**
+   * Handles opening the chat window with app-level state management
+   */
+  handleOpen = () => {
     popupButton.setAttribute("aria-expanded", "true");
     popupButton.classList.add("popup-button--hidden");
-    clearPendingStateSyncTimeout();
-    postChatState(true);
-    return isEmbedded ? EMBED_TRANSITION_DELAY : 0;
-  };
+    stateManager.clearPendingTimeout();
+    postMessageService.postChatState(true);
 
-  const handleOpen = () => {
-    if (chatWindow) {
+    const delay = stateManager.getTransitionDelay(
+      isEmbedded,
+      EMBED_CONFIG.TRANSITION_DELAY
+    );
+
+    stateManager.executeWithDelay(() => {
+      chatWindow.open();
       chatWindow.focusInput();
-    }
+    }, delay);
   };
 
-  const handleClose = () => {
+  /**
+   * Handles closing the chat window with app-level state management
+   */
+  handleClose = () => {
+    chatWindow.close();
     popupButton.setAttribute("aria-expanded", "false");
-    clearPendingStateSyncTimeout();
+    stateManager.clearPendingTimeout();
 
     const syncState = () => {
-      postChatState(false);
+      postMessageService.postChatState(false);
       popupButton.classList.remove("popup-button--hidden");
       popupButton.focus();
     };
 
-    const delay = isEmbedded ? EMBED_TRANSITION_DELAY : 0;
+    const delay = stateManager.getTransitionDelay(
+      isEmbedded,
+      EMBED_CONFIG.TRANSITION_DELAY
+    );
 
-    if (delay > 0) {
-      pendingStateSyncTimeout = window.setTimeout(() => {
-        pendingStateSyncTimeout = null;
-        syncState();
-      }, delay);
+    stateManager.executeWithDelay(syncState, delay);
+  };
+
+  const handleToggle = () => {
+    if (chatWindow.element.classList.contains("chat-window--hidden")) {
+      handleOpen();
     } else {
-      syncState();
+      handleClose();
     }
   };
 
-  chatWindow = createChatWindow({
-    onBeforeOpen: handleBeforeOpen,
-    onOpen: handleOpen,
-    onClose: handleClose,
-    fullSize: isEmbedded,
-  });
-
+  // Set up popup button ARIA attributes
   popupButton.setAttribute("aria-haspopup", "dialog");
   popupButton.setAttribute("aria-expanded", "false");
   popupButton.setAttribute("aria-controls", chatWindow.element.id);
 
-  popupButton.addEventListener("click", () => {
-    chatWindow.toggle();
-  });
+  // Handle popup button clicks
+  popupButton.addEventListener("click", handleToggle);
 
+  // Set up embed handlers if embedded
   if (isEmbedded) {
-    window.addEventListener("message", (event) => {
-      const { data } = event;
-      if (
-        !data ||
-        data.source !== EMBED_SOURCE ||
-        data.type !== COMMAND_MESSAGE_TYPE
-      ) {
-        return;
-      }
-
-      if (data.command === "open") {
-        chatWindow.open();
-      } else if (data.command === "close") {
-        chatWindow.close();
-      } else if (data.command === "toggle") {
-        chatWindow.toggle();
-      }
+    setupEmbedHandlers({
+      onOpen: handleOpen,
+      onClose: handleClose,
+      onToggle: handleToggle,
     });
   }
 
+  // Append elements to DOM
   document.body.appendChild(chatWindow.element);
   document.body.appendChild(popupButton);
 
-  postChatState(false);
+  // Post initial state
+  postMessageService.postChatState(false);
 
-  const handleDocumentClick = (event) => {
-    const target = event.target;
-    if (chatWindow.element.contains(target) || popupButton.contains(target)) {
-      return;
-    }
-
-    if (!chatWindow.element.classList.contains("chat-window--hidden")) {
-      chatWindow.close();
-    }
-  };
-
-  const handleKeyDown = (event) => {
-    if (event.key !== "Escape") return;
-    if (chatWindow.element.classList.contains("chat-window--hidden")) return;
-    chatWindow.close();
-  };
-
-  document.addEventListener("click", handleDocumentClick);
-  window.addEventListener("keydown", handleKeyDown);
-
-  window.addEventListener("message", (event) => {
-    const { data } = event;
-    console.log(data);
-
-    if (!data || data.source !== EMBED_SOURCE) return;
-
-    if (data.type === STATE_MESSAGE_TYPE) {
-      if (data.open) {
-        chatWindow.open();
-      } else {
-        chatWindow.close();
-      }
-    }
+  // Set up DOM event handlers (click outside, escape key)
+  setupDOMHandlers({
+    chatWindowElement: chatWindow.element,
+    popupButton,
+    onClose: handleClose,
   });
 };
 

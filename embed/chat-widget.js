@@ -5,7 +5,6 @@
 
   var EMBED_SOURCE = "personal-ai-chat";
   var STATE_MESSAGE_TYPE = "personal-ai-chat:state";
-  var COMMAND_MESSAGE_TYPE = "personal-ai-chat:command";
 
   function createChatIframe() {
     var scriptTag = document.currentScript;
@@ -37,7 +36,7 @@
     iframe.style.position = "fixed";
     iframe.style.border = "none";
     iframe.style.borderRadius = "12px";
-    iframe.style.transition = "width 0.25s ease, height 0.25s ease";
+    iframe.style.transition = "width 0.2s ease, height 0.2s ease";
     iframe.style.zIndex = "999999"; // on top of almost everything
 
     function applyCollapsedState() {
@@ -92,12 +91,6 @@
 
       if (data.type === STATE_MESSAGE_TYPE) {
         updateIframeState(Boolean(data.open));
-      } else if (data.type === COMMAND_MESSAGE_TYPE) {
-        if (data.command === "open") {
-          updateIframeState(true);
-        } else if (data.command === "close") {
-          updateIframeState(false);
-        }
       }
     });
 

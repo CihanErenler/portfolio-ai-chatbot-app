@@ -1,24 +1,18 @@
 import createChatHeader from "./chatHeader.js";
 import createChatMessageList from "./chatMessageList.js";
 import createChatInput from "./chatInput.js";
+import { CHAT_CONFIG } from "../../constants/index.js";
 import "./chatWindow.style.css";
-
-const DEFAULT_WELCOME_MESSAGE = {
-  sender: "bot",
-  text: "Hey there! I'm Cihan's AI assistant — ask me anything about my work, projects, or experience.",
-};
 
 const createChatWindow = ({
   id = "chat-window",
-  title = "Cihan's AI Assistant",
-  subtitle = "Ask about my skills, projects, experiences, and more.",
-  status = "Online now",
+  title = CHAT_CONFIG.DEFAULT_TITLE,
+  subtitle = CHAT_CONFIG.DEFAULT_SUBTITLE,
+  status = CHAT_CONFIG.DEFAULT_STATUS,
   avatar = "",
-  placeholder = "Send a message...",
+  placeholder = CHAT_CONFIG.DEFAULT_PLACEHOLDER,
   initialMessages = [],
   onSend,
-  onBeforeOpen,
-  onOpen,
   onClose,
   fullSize = false,
 } = {}) => {
@@ -35,7 +29,9 @@ const createChatWindow = ({
   }
 
   const messageList = createChatMessageList(
-    initialMessages.length > 0 ? initialMessages : [DEFAULT_WELCOME_MESSAGE]
+    initialMessages.length > 0
+      ? initialMessages
+      : [CHAT_CONFIG.DEFAULT_WELCOME_MESSAGE]
   );
 
   const appendBotMessage = (message) => {
@@ -54,14 +50,26 @@ const createChatWindow = ({
     messageList.appendMessage(normalizedMessage);
   };
 
+  /**
+   * Default responder when no onSend handler is provided
+   */
   const defaultResponder = () => {
     appendBotMessage("Thanks for reaching out! We'll reply shortly.");
   };
 
+  /**
+   * Message responder - uses provided onSend handler or defaults
+   */
   const responder = typeof onSend === "function" ? onSend : defaultResponder;
 
+  /**
+   * Handles user messages by appending to UI and processing through responder
+   */
   const handleUserMessage = (value) => {
+    // Message will be appended by the responder if it uses callbacks
+    // Otherwise, append user message immediately for immediate UI feedback
     appendUserMessage(value);
+
     try {
       const response = responder(value, {
         appendBotMessage,
@@ -69,6 +77,7 @@ const createChatWindow = ({
         appendUserMessage,
       });
 
+      // Handle async responses
       if (response && typeof response.then === "function") {
         response.catch((error) => {
           console.error("Chat responder error:", error); // eslint-disable-line no-console
@@ -79,59 +88,14 @@ const createChatWindow = ({
     }
   };
 
-  const handleBeforeOpen =
-    typeof onBeforeOpen === "function" ? onBeforeOpen : null;
-  const handleOpen = typeof onOpen === "function" ? onOpen : null;
-  const handleClose = typeof onClose === "function" ? onClose : null;
-
-  const performOpen = () => {
+  const open = () => {
     chatWindow.classList.remove("chat-window--hidden");
     chatWindow.setAttribute("aria-hidden", "false");
-    if (handleOpen) {
-      handleOpen();
-    }
-  };
-
-  const open = () => {
-    if (!handleBeforeOpen) {
-      performOpen();
-      return;
-    }
-
-    try {
-      const result = handleBeforeOpen();
-
-      if (result && typeof result.then === "function") {
-        result
-          .then(() => {
-            performOpen();
-          })
-          .catch((error) => {
-            console.error("Chat beforeOpen error:", error); // eslint-disable-line no-console
-            performOpen();
-          });
-        return;
-      }
-
-      if (typeof result === "number" && Number.isFinite(result) && result > 0) {
-        window.setTimeout(() => {
-          performOpen();
-        }, result);
-        return;
-      }
-    } catch (error) {
-      console.error("Chat beforeOpen error:", error); // eslint-disable-line no-console
-    }
-
-    performOpen();
   };
 
   const close = () => {
     chatWindow.classList.add("chat-window--hidden");
     chatWindow.setAttribute("aria-hidden", "true");
-    if (handleClose) {
-      handleClose();
-    }
   };
 
   const toggle = () => {
@@ -147,7 +111,7 @@ const createChatWindow = ({
     subtitle,
     status,
     avatar,
-    onClose: close,
+    onClose: onClose || close,
   });
 
   const chatInput = createChatInput({
