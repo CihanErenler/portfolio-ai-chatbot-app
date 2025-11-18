@@ -1,2 +1,37 @@
+# Dependencies
+node_modules/
+
+# Environment variables
 .env
-node_modules
+.env.local
+.env.*.local
+
+# Build outputs
+public/assets/
+dist/
+docs.js
+seeds.js
+
+# OS files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Editor directories and files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~

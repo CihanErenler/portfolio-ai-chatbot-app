@@ -2,7 +2,6 @@ import createPopupButton from "./components/popupButton/popupButton.js";
 import createChatWindow from "./components/chat/chatWindow.js";
 import { EMBED_CONFIG } from "./constants/index.js";
 import postMessageService from "./services/postMessageService.js";
-import { createMessageHandler } from "./services/messageHandler.js";
 import StateManager from "./utils/stateManager.js";
 import { setupEmbedHandlers } from "./handlers/embedHandlers.js";
 import { setupDOMHandlers } from "./handlers/domHandlers.js";
@@ -21,12 +20,6 @@ const startApp = () => {
   let handleClose;
 
   const chatWindow = createChatWindow({
-    onSend: (userMessage, callbacks) => {
-      // Create message handler with callbacks from chat window
-      const messageHandler = createMessageHandler(callbacks);
-      // Process the message asynchronously
-      return messageHandler(userMessage);
-    },
     onClose: () => handleClose?.(),
     fullSize: isEmbedded,
   });

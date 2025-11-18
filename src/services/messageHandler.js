@@ -14,11 +14,7 @@ import chatService from "./chatService.js";
  * @returns {Function} Message handler function
  */
 export function createMessageHandler(callbacks = {}, onError = null) {
-  const {
-    appendBotMessage,
-    appendUserMessage,
-    appendMessage,
-  } = callbacks;
+  const { appendBotMessage, appendUserMessage, appendMessage } = callbacks;
 
   /**
    * Handles a user message by sending it to the API and processing the response
@@ -107,4 +103,3 @@ export function createDefaultResponder(callbacks = {}) {
     }
   };
 }
-

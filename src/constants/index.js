@@ -20,5 +20,6 @@ export const CHAT_CONFIG = {
 };
 
 export const API_CONFIG = {
-  CHAT_ENDPOINT: "/chat",
+  BASE_URL: "http://localhost:3000",
+  CHAT_ENDPOINT: "/api/chat",
 };
