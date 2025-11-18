@@ -9,6 +9,8 @@ node_modules/
 # Build outputs
 public/assets/
 dist/
+docs.js
+seeds.js
 
 # OS files
 .DS_Store

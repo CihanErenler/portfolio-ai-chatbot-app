@@ -1,12 +1,10 @@
-import dotenv from "dotenv";
 import pg from "pg";
-
-dotenv.config();
+import { serverConfig } from "./serverConfig.js";
 
 const { Pool } = pg;
 
 const pool = new Pool({
-  connectionString: process.env.PG_CONNECTION_STRING,
+  connectionString: serverConfig.pgConnectionString,
 });
 
 export default pool;

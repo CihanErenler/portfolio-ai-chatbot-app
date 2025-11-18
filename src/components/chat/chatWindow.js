@@ -1,8 +1,19 @@
 import createChatHeader from "./chatHeader.js";
 import createChatMessageList from "./chatMessageList.js";
 import createChatInput from "./chatInput.js";
+import createChatTypingIndicator from "./chatTypingIndicator.js";
+import { createMessageHandler } from "../../services/messageHandler.js";
 import { CHAT_CONFIG } from "../../constants/index.js";
 import "./chatWindow.style.css";
+
+const FORCE_TYPING_INDICATOR_VISIBLE = false; // TODO: disable when testing completes
+
+const isPromiseLike = (value) =>
+  Boolean(
+    value &&
+      (typeof value === "object" || typeof value === "function") &&
+      typeof value.then === "function"
+  );
 
 const createChatWindow = ({
   id = "chat-window",
@@ -50,42 +61,89 @@ const createChatWindow = ({
     messageList.appendMessage(normalizedMessage);
   };
 
-  /**
-   * Default responder when no onSend handler is provided
-   */
-  const defaultResponder = () => {
-    appendBotMessage("Thanks for reaching out! We'll reply shortly.");
+  const scrollMessagesToBottom = () => {
+    const listElement = messageList.element;
+    if (!listElement) return;
+    listElement.scrollTop = listElement.scrollHeight;
   };
 
-  /**
-   * Message responder - uses provided onSend handler or defaults
-   */
-  const responder = typeof onSend === "function" ? onSend : defaultResponder;
+  const messageContext = {
+    appendBotMessage,
+    appendUserMessage,
+    appendMessage: messageList.appendMessage,
+  };
+
+  const defaultResponder = createMessageHandler(messageContext);
+
+  const responder =
+    typeof onSend === "function"
+      ? (userMessage) => onSend(userMessage, messageContext)
+      : defaultResponder;
+
+  let pendingResponses = 0;
+
+  const typingIndicator = createChatTypingIndicator();
+  typingIndicator.setAttribute("aria-hidden", "true");
+  typingIndicator.hidden = true;
+
+  const updateTypingIndicatorVisibility = () => {
+    const isVisible = FORCE_TYPING_INDICATOR_VISIBLE || pendingResponses > 0;
+    typingIndicator.hidden = !isVisible;
+    typingIndicator.setAttribute("aria-hidden", String(!isVisible));
+    typingIndicator.classList.toggle(
+      "chat-window__typing-indicator--visible",
+      isVisible
+    );
+    messageList.element.classList.toggle(
+      "chat-window__messages--typing-active",
+      isVisible
+    );
+
+    if (isVisible) {
+      scrollMessagesToBottom();
+    }
+  };
+
+  const startWaitingForResponse = () => {
+    pendingResponses += 1;
+    updateTypingIndicatorVisibility();
+  };
+
+  const finishWaitingForResponse = () => {
+    pendingResponses = Math.max(0, pendingResponses - 1);
+    updateTypingIndicatorVisibility();
+  };
+
+  updateTypingIndicatorVisibility();
 
   /**
    * Handles user messages by appending to UI and processing through responder
    */
   const handleUserMessage = (value) => {
-    // Message will be appended by the responder if it uses callbacks
-    // Otherwise, append user message immediately for immediate UI feedback
     appendUserMessage(value);
 
-    try {
-      const response = responder(value, {
-        appendBotMessage,
-        appendMessage: messageList.appendMessage,
-        appendUserMessage,
-      });
+    let response;
 
-      // Handle async responses
-      if (response && typeof response.then === "function") {
-        response.catch((error) => {
-          console.error("Chat responder error:", error); // eslint-disable-line no-console
-        });
-      }
+    try {
+      response = responder(value, messageContext);
     } catch (error) {
       console.error("Chat responder error:", error); // eslint-disable-line no-console
+      return undefined;
     }
+
+    if (isPromiseLike(response)) {
+      startWaitingForResponse();
+
+      Promise.resolve(response)
+        .catch((error) => {
+          console.error("Chat responder error:", error); // eslint-disable-line no-console
+        })
+        .finally(() => {
+          finishWaitingForResponse();
+        });
+    }
+
+    return response;
   };
 
   const open = () => {
@@ -119,7 +177,12 @@ const createChatWindow = ({
     onSend: handleUserMessage,
   });
 
-  chatWindow.append(chatHeader, messageList.element, chatInput.element);
+  chatWindow.append(
+    chatHeader,
+    messageList.element,
+    typingIndicator,
+    chatInput.element
+  );
 
   return {
     element: chatWindow,
@@ -127,9 +190,6 @@ const createChatWindow = ({
     close,
     toggle,
     focusInput: () => chatInput.focus(),
-    appendMessage: messageList.appendMessage,
-    appendUserMessage,
-    appendBotMessage,
     clearMessages: messageList.clear,
   };
 };

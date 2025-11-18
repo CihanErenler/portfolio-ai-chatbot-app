@@ -251,6 +251,10 @@
   scrollbar-color: var(--chat-scrollbar-thumb) var(--chat-scrollbar-track);
 }
 
+.chat-window__messages--typing-active {
+  padding-bottom: 96px;
+}
+
 .chat-window__messages::after {
   content: "";
   position: sticky;
@@ -423,6 +427,87 @@
 .chat-window__send:focus-visible {
   outline: 2px solid rgba(255, 255, 255, 0.65);
   outline-offset: 3px;
+}
+
+.chat-window__typing-indicator {
+  width: 100%;
+  display: none;
+  opacity: 0;
+  padding: 8px 24px 0;
+  transition: opacity 0.25s ease;
+}
+
+.chat-window__typing-indicator--visible {
+  display: flex;
+  opacity: 1;
+}
+
+.chat-window__typing-indicator-bubble {
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+  max-width: 84%;
+  padding: 10px 16px;
+  border-radius: var(--chat-radius-md);
+  background: rgba(99, 102, 241, 0.1);
+  border: 1px solid rgba(99, 102, 241, 0.18);
+  box-shadow: 0 12px 26px -18px rgba(99, 102, 241, 0.55);
+  backdrop-filter: blur(6px);
+  margin-bottom: 10px;
+}
+
+.chat-window__typing-label {
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(79, 70, 229, 0.75);
+  font-weight: 600;
+}
+
+.chat-window__typing-dots {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.chat-window__typing-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: linear-gradient(
+    135deg,
+    var(--chat-brand-primary),
+    var(--chat-brand-accent)
+  );
+  box-shadow: 0 0 12px rgba(99, 102, 241, 0.45);
+  animation: chat-typing-dot 1.2s ease-in-out infinite;
+  animation-delay: calc(var(--dot-index, 0) * 0.15s);
+  opacity: 0.45;
+}
+
+@keyframes chat-typing-dot {
+  0% {
+    transform: translateY(0);
+    opacity: 0.4;
+  }
+  30% {
+    transform: translateY(-4px);
+    opacity: 1;
+  }
+  60% {
+    transform: translateY(0);
+    opacity: 0.6;
+  }
+  100% {
+    opacity: 0.4;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .chat-window__typing-dot {
+    animation: none;
+    opacity: 0.75;
+  }
 }
 
 @keyframes chat-message-in {
