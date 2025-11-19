@@ -2,7 +2,7 @@ import createIcon from "../../utils/createIcon.js";
 import "./popupButton.style.css";
 
 const createPopupButton = () => {
-  const icon = createIcon("/src/assets/chatbot-icon.svg");
+  const icon = createIcon("/chatbot-icon.svg");
   const button = document.createElement("button");
   button.classList.add("popup-button");
   button.type = "button";
