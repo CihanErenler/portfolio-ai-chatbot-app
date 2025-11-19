@@ -12,7 +12,7 @@
     // URL where your chat app (iframe UI) lives
     var chatUrl =
       scriptTag.getAttribute("data-chat-url") ||
-      "https://assistant.cihanapps.dev/api/chat"; // change to your real URL
+      "https://assistant.cihanapps.dev"; // change to your real URL
 
     // Optional positioning option
     var position =
