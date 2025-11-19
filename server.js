@@ -27,6 +27,11 @@ app.use(cors(allowedOrigin));
 app.use(express.json());
 app.use(limiter);
 
+// Root route
+app.get("/", (req, res) => {
+  res.status(200).send("Cihan Erenler Chat Assistant Server")
+})
+
 // Health check endpoint
 app.get("/health", (req, res) => {
   res.status(200).json({ message: "OK" });
