@@ -25,12 +25,11 @@ app.use(express.static(path.join(__dirname, "public")));
 app.use(express.static(path.join(__dirname, "embed")));
 app.use(cors(allowedOrigin));
 app.use(express.json());
-app.use(limiter);
 
 // Root route
 app.get("/", (req, res) => {
-  res.status(200).send("Cihan Erenler Chat Assistant Server")
-})
+  res.status(200).send("Cihan Erenler Chat Assistant Server");
+});
 
 // Health check endpoint
 app.get("/health", (req, res) => {
@@ -38,7 +37,7 @@ app.get("/health", (req, res) => {
 });
 
 // Chat endpoint
-app.post("/api/chat", async (req, res) => {
+app.post("/api/chat", limiter, async (req, res) => {
   console.time("chat:total");
   try {
     const { message } = req.body;
