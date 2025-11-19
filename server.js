@@ -59,7 +59,7 @@ app.post("/api/chat", async (req, res) => {
         1 - (embedding <=> $1::vector) AS similarity
       FROM documents
       ORDER BY embedding <=> $1::vector
-      LIMIT 3
+      LIMIT 5
       `,
       [queryEmbeddingStr]
     );
@@ -77,6 +77,8 @@ Rules:
 - If the answer is not in the context, say: "I'm not sure — I only know what's in Cihan's portfolio data."
 - Keep the tone clear, friendly, and professional.
 - Do not repeat the question, and avoid long introductions or conclusions.
+- Give precise answers. For exaple if they ask who is Cihan, just tell who is he. Do not list skills or projects."
+- The portfolio projects url is https://cihanerenler.com/
 `;
 
     console.time("chat:completion");
