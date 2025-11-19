@@ -11,8 +11,7 @@
 
     // URL where your chat app (iframe UI) lives
     var chatUrl =
-      scriptTag.getAttribute("data-chat-url") ||
-      "https://assistant.cihanapps.dev";
+      scriptTag.getAttribute("data-chat-url") || "http://localhost:3000"; // change to your real URL
 
     // Optional positioning option
     var position =
