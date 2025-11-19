@@ -20,6 +20,6 @@ export const CHAT_CONFIG = {
 };
 
 export const API_CONFIG = {
-  BASE_URL: "http://localhost:3000",
+  BASE_URL: "https://assistant.cihanapps.dev",
   CHAT_ENDPOINT: "/api/chat",
 };
