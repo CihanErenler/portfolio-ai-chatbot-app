@@ -11,6 +11,7 @@ const createChatInput = ({
   input.name = "message";
   input.autocomplete = "off";
   input.placeholder = placeholder;
+  input.maxLength = 300;
   input.classList.add("chat-window__text-field");
 
   const sendButton = document.createElement("button");
@@ -28,17 +29,17 @@ const createChatInput = ({
     const value = input.value.trim();
     if (!value) return;
 
-    if (typeof onSend === "function") {
-      onSend(value);
-    }
-
     input.value = "";
-    input.focus();
+    onSend?.(value);
   });
 
   return {
     element: form,
     focus: () => input.focus(),
+    setDisabled: (disabled) => {
+      input.disabled = disabled;
+      sendButton.disabled = disabled;
+    },
   };
 };
 

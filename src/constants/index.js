@@ -9,7 +9,7 @@ export const EMBED_CONFIG = {
 };
 
 export const CHAT_CONFIG = {
-  DEFAULT_TITLE: "Cihan's AI Assistant",
+  DEFAULT_TITLE: "Portfolio AI",
   DEFAULT_SUBTITLE: "Ask about my skills, projects, experiences, and more.",
   DEFAULT_STATUS: "Online now",
   DEFAULT_PLACEHOLDER: "Send a message...",
@@ -20,6 +20,8 @@ export const CHAT_CONFIG = {
 };
 
 export const API_CONFIG = {
-  BASE_URL: "https://assistant.cihanapps.dev",
+  // The UI is served by the same server as the API, so same-origin works in
+  // production and through the Vite proxy in dev.
+  BASE_URL: "",
   CHAT_ENDPOINT: "/api/chat",
 };

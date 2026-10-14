@@ -29,6 +29,8 @@
       scriptTag.getAttribute("data-chat-height") ||
       "min(820px, calc(100vh - 82px))";
 
+    var chatOrigin = new URL(chatUrl, location.href).origin;
+
     var iframe = document.createElement("iframe");
     iframe.id = "cihan-chat-widget-iframe";
     iframe.src = chatUrl;
@@ -95,21 +97,14 @@
       }
     });
 
-    document.addEventListener("click", (event) => {
-      console.log(iframe.contains(event.target));
-      const target = event.target;
-      const shouldClose = !iframe.contains(target);
-      console.log("shouldClose", shouldClose);
-      if (shouldClose) {
-        iframe.contentWindow.postMessage(
-          {
-            source: EMBED_SOURCE,
-            type: STATE_MESSAGE_TYPE,
-            open: false,
-          },
-          "*"
-        );
-      }
+    // Ask the chat UI to close when the visitor clicks elsewhere on the host page.
+    document.addEventListener("click", function (event) {
+      if (iframe.dataset.chatState !== "open" || iframe.contains(event.target))
+        return;
+      iframe.contentWindow.postMessage(
+        { source: EMBED_SOURCE, type: STATE_MESSAGE_TYPE, open: false },
+        chatOrigin
+      );
     });
   }
 
