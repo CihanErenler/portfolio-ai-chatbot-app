@@ -70,12 +70,12 @@ const docs = [
     type: "education",
     title: "Computer Applications at Hame University",
     content:
-      "Cihan Erenler is currently studying Computer Applications at Hame University of Applied Sciences in Finland. He started in 2020 and is still pursuing this degree.",
+      "Cihan Erenler studied Computer Applications at Hame University of Applied Sciences (HAMK) in Finland. He started in 2020 and graduated in 2024.",
     metadata: {
       degree: "Computer Applications",
       university: "Hame University of Applied Sciences - Finland",
-      date: "2020 - Current",
-      isCurrent: true,
+      date: "2020 - 2024",
+      isCurrent: false,
     },
   },
   {
@@ -291,7 +291,7 @@ const docs = [
     type: "professional_focus",
     title: "Professional Focus and Specializations",
     content:
-      "Cihan Erenler's primary focus is on front-end and back-end development for complex scalable web applications. His specializations include React.js development, TypeScript, Node.js and Express.js, full-stack web applications, UI/UX design and implementation, and testing with Jest, React Testing Library, and Cypress. He is currently working as Software Engineer at SSH Secure Collaboration in Finland and is also currently studying Computer Applications at Hame University of Applied Sciences.",
+      "Cihan Erenler's primary focus is on front-end and back-end development for complex scalable web applications. His specializations include React.js development, TypeScript, Node.js and Express.js, full-stack web applications, UI/UX design and implementation, and testing with Jest, React Testing Library, and Cypress. He is currently working as Software Engineer at SSH Secure Collaboration in Finland and graduated in Computer Applications from Hame University of Applied Sciences in 2024.",
     metadata: {
       primary:
         "Front-end and back-end development for complex scalable web applications",
