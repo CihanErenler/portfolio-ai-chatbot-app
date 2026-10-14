@@ -5,6 +5,7 @@
 export const EMBED_CONFIG = {
   SOURCE: "personal-ai-chat",
   STATE_MESSAGE_TYPE: "personal-ai-chat:state",
+  THEME_MESSAGE_TYPE: "personal-ai-chat:theme",
   TRANSITION_DELAY: 200,
 };
 

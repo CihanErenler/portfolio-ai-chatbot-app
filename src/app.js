@@ -7,10 +7,21 @@ import { setupEmbedHandlers } from "./handlers/embedHandlers.js";
 import { setupDOMHandlers } from "./handlers/domHandlers.js";
 import "./styles.css";
 
+const applyTheme = (theme) => {
+  if (theme === "light" || theme === "dark") {
+    document.documentElement.dataset.theme = theme;
+  }
+};
+
 /**
  * Initializes the chat application
  */
 const startApp = () => {
+  // Until the host page tells us its theme, follow the browser preference.
+  applyTheme(
+    window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark"
+  );
+
   const popupButton = createPopupButton();
   const stateManager = new StateManager();
   const isEmbedded = postMessageService.getIsEmbedded();
@@ -88,6 +99,7 @@ const startApp = () => {
       onOpen: handleOpen,
       onClose: handleClose,
       onToggle: handleToggle,
+      onTheme: applyTheme,
     });
   }
 

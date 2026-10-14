@@ -5,6 +5,7 @@
 
   var EMBED_SOURCE = "personal-ai-chat";
   var STATE_MESSAGE_TYPE = "personal-ai-chat:state";
+  var THEME_MESSAGE_TYPE = "personal-ai-chat:theme";
 
   function createChatIframe() {
     var scriptTag = document.currentScript;
@@ -95,6 +96,33 @@
       if (data.type === STATE_MESSAGE_TYPE) {
         updateIframeState(Boolean(data.open));
       }
+    });
+
+    // Mirror the host page's theme (a "dark"/"light" class or data-theme on
+    // <html>, falling back to the browser preference) into the chat UI.
+    function getHostTheme() {
+      var root = document.documentElement;
+      var attr = root.getAttribute("data-theme");
+      if (attr === "dark" || attr === "light") return attr;
+      if (root.classList.contains("dark")) return "dark";
+      if (root.classList.contains("light")) return "light";
+      return window.matchMedia("(prefers-color-scheme: dark)").matches
+        ? "dark"
+        : "light";
+    }
+
+    function sendTheme() {
+      if (!iframe.contentWindow) return;
+      iframe.contentWindow.postMessage(
+        { source: EMBED_SOURCE, type: THEME_MESSAGE_TYPE, theme: getHostTheme() },
+        chatOrigin
+      );
+    }
+
+    iframe.addEventListener("load", sendTheme);
+    new MutationObserver(sendTheme).observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ["class", "data-theme"],
     });
 
     // Ask the chat UI to close when the visitor clicks elsewhere on the host page.

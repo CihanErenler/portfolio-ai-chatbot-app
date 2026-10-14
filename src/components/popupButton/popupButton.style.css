@@ -2,16 +2,16 @@
   position: fixed;
   bottom: 10px;
   right: 10px;
-  width: 72px;
-  height: 72px;
+  width: 60px;
+  height: 60px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #111113;
-  border: 1px solid #4fc38a;
-  box-shadow: 0 0 0 4px rgba(79, 195, 138, 0.12);
-  color: #ffffff;
+  background: var(--chat-launcher-bg);
+  border: 1px solid var(--chat-accent);
+  box-shadow: 0 0 0 4px var(--chat-accent-soft);
+  color: var(--chat-launcher-fg);
   cursor: pointer;
   transform: translateY(0);
   transition: transform 0.2s cubic-bezier(0.22, 1, 0.36, 1),
@@ -36,18 +36,17 @@
 }
 
 .popup-button:hover {
-  box-shadow: 0 0 0 6px rgba(79, 195, 138, 0.2);
+  box-shadow: 0 0 0 6px color-mix(in srgb, var(--chat-accent) 22%, transparent);
 }
 
 .popup-button:focus-visible {
-  outline: 2px solid #4fc38a;
+  outline: 2px solid var(--chat-accent);
   outline-offset: 4px;
 }
 
 .popup-button .icon {
-  width: 42px;
-  height: 42px;
-  filter: drop-shadow(0 10px 18px rgba(15, 23, 42, 0.35));
+  width: 28px;
+  height: 28px;
 }
 
 .popup-button.popup-button--hidden {
@@ -61,7 +60,7 @@
   .popup-button {
     bottom: 10px;
     right: 10px;
-    width: 68px;
-    height: 68px;
+    width: 60px;
+    height: 60px;
   }
 }

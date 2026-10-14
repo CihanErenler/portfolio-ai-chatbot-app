@@ -26,10 +26,11 @@ export function createStateMessageHandler(onOpen, onClose) {
  * @param {Object} config - Configuration object
  * @param {Function} config.onOpen - Handler to open the chat window
  * @param {Function} config.onClose - Handler to close the chat window
+ * @param {(theme: string) => void} config.onTheme - Handler for theme changes sent by the host page
  * @param {Function} config.onToggle - Handler to toggle the chat window (unused, kept for API compatibility)
  * @returns {Function} Cleanup function to remove event listeners
  */
-export function setupEmbedHandlers({ onOpen, onClose, onToggle }) {
+export function setupEmbedHandlers({ onOpen, onClose, onToggle, onTheme }) {
   const stateHandler = createStateMessageHandler(onOpen, onClose);
 
   const messageHandler = (event) => {
@@ -41,6 +42,8 @@ export function setupEmbedHandlers({ onOpen, onClose, onToggle }) {
 
     if (data.type === EMBED_CONFIG.STATE_MESSAGE_TYPE) {
       stateHandler(data);
+    } else if (data.type === EMBED_CONFIG.THEME_MESSAGE_TYPE) {
+      onTheme?.(data.theme);
     }
   };
 

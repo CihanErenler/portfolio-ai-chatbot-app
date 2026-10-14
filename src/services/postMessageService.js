@@ -61,11 +61,8 @@ class PostMessageService {
    */
   isValidMessage(event) {
     const { data } = event;
-    return (
-      event.source === window.parent &&
-      data &&
-      data.source === this.source &&
-      data.type === EMBED_CONFIG.STATE_MESSAGE_TYPE
+    return Boolean(
+      event.source === window.parent && data && data.source === this.source
     );
   }
 }
